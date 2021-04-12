@@ -3,12 +3,28 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="NoteKeeper.Views.ItemDetailPage"
              Title="{Binding Title}">
-
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Cancel" Command="{Binding CancelItemCommand}"></ToolbarItem>
+        <ToolbarItem Text="Save" Command="{Binding SaveItemCommand}"></ToolbarItem>
+    </ContentPage.ToolbarItems>
     <StackLayout Spacing="20" Padding="15">
-        <Label Text="Text:" FontSize="Medium" />
-        <Label Text="{Binding Text}" FontSize="Small"/>
+        <!--<Label Text="Course:" FontSize="Medium" />-->
+        <Picker x:Name="NoteCourse" Title="Courses" FontSize="Medium">
+            <Picker.ItemsSource>
+                <x:Array Type="{x:Type x:String}">
+                    <x:String>Course 1</x:String>
+                    <x:String>Course 2</x:String>
+                    <x:String>Course 3</x:String>
+                </x:Array>
+            </Picker.ItemsSource>
+        </Picker>
+        <!--<Label Text="Heading:" FontSize="Medium" />-->
+        <Entry x:Name="NoteHeading" Placeholder="Note heading" FontSize="Medium" />
+        <!--<Label Text="Text:" FontSize="Medium" />-->
+        <Editor x:Name="NoteText" Placeholder="Note Text" FontSize="Medium" AutoSize="TextChanges"/>
+        <!--<Label Text="{Binding Text}" FontSize="Small"/>
         <Label Text="Description:" FontSize="Medium" />
-        <Label Text="{Binding Description}" FontSize="Small"/>
+        <Label Text="{Binding Description}" FontSize="Small"/>-->
     </StackLayout>
     
 </ContentPage>
