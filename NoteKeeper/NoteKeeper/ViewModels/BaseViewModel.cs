@@ -11,6 +11,9 @@ namespace NoteKeeper.ViewModels
     public class BaseViewModel : INotifyPropertyChanged
     {
         public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>();
+        public IObjectStore<Note> ObjectNoteStore => DependencyService.Get<IObjectStore<Note>>();
+        public IObjectStore<Course> ObjectCourseStore => DependencyService.Get<IObjectStore<Course>>();
+
 
         bool isBusy = false;
         public bool IsBusy

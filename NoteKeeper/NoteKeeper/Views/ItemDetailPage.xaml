@@ -9,19 +9,13 @@
     </ContentPage.ToolbarItems>
     <StackLayout Spacing="20" Padding="15">
         <!--<Label Text="Course:" FontSize="Medium" />-->
-        <Picker x:Name="NoteCourse" Title="Courses" FontSize="Medium">
-            <Picker.ItemsSource>
-                <x:Array Type="{x:Type x:String}">
-                    <x:String>Course 1</x:String>
-                    <x:String>Course 2</x:String>
-                    <x:String>Course 3</x:String>
-                </x:Array>
-            </Picker.ItemsSource>
+        <Picker ItemsSource="{Binding CourseList}" ItemDisplayBinding="{Binding Name}"  SelectedItem="{Binding CourseSelected}" x:Name="NoteCourse" Title="Courses" FontSize="Medium">
+            
         </Picker>
         <!--<Label Text="Heading:" FontSize="Medium" />-->
-        <Entry x:Name="NoteHeading" Placeholder="Note heading" FontSize="Medium" />
+        <Entry Text="{Binding Note.Heading}" x:Name="NoteHeading" Placeholder="Note heading" FontSize="Medium" />
         <!--<Label Text="Text:" FontSize="Medium" />-->
-        <Editor x:Name="NoteText" Placeholder="Note Text" FontSize="Medium" AutoSize="TextChanges"/>
+        <Editor Text="{Binding Note.Text}" x:Name="NoteText" Placeholder="Note Text" FontSize="Medium" AutoSize="TextChanges"/>
         <!--<Label Text="{Binding Text}" FontSize="Small"/>
         <Label Text="Description:" FontSize="Medium" />
         <Label Text="{Binding Description}" FontSize="Small"/>-->

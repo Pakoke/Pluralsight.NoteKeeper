@@ -8,7 +8,7 @@ namespace NoteKeeper.Services
 {
     public class MockDataStore : IDataStore<Item>
     {
-        readonly List<Item> items;
+        readonly IList<Item> items;
 
         public MockDataStore()
         {
