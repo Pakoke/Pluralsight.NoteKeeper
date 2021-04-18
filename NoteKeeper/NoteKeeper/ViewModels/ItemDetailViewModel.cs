@@ -13,11 +13,6 @@ namespace NoteKeeper.ViewModels
     public class ItemDetailViewModel : BaseViewModel
     {
         private string itemId;
-        private string text;
-        private string description;
-        private string heading;
-        private IList<string> courselist;
-        private int courseindex;
         private Note note;
         private Course course;
         public IEnumerable<Course> CourseList { get; set; }
@@ -28,9 +23,9 @@ namespace NoteKeeper.ViewModels
                 return course;
             }
             set {
-                course = note.Course;
+                //course = value;
+                this.Note.Course = value;
                 SetProperty(ref course, value);
-                Note.Course = course;
             }
         }
 
@@ -48,45 +43,25 @@ namespace NoteKeeper.ViewModels
 
         public ItemDetailViewModel()
         {
+            Title = "Note Edition";
             CancelItemCommand = new Command(CancelItem);
 
-            SaveItemCommand = new Command(UpdateItem, ValidateSave);
+            SaveItemCommand = new Command(AddAndUpdateItem);
             this.PropertyChanged +=
                 (_, __) => SaveItemCommand.ChangeCanExecute();
+
             InitializeCourseList();
-
-            Note = new Note() { Text = "This is a test text", Heading = "This is a heading test", Course = CourseList.ElementAt(1), Id = Guid.NewGuid().ToString() };
-            CourseSelected = Note.Course;
-        }
-
-        public string Text
-        {
-            get => text;
-            set => SetProperty(ref text, value);
-        }
-
-        public string Description
-        {
-            get => description;
-            set => SetProperty(ref description, value);
-        }
-
-        public string Heading
-        {
-            get => heading;
-            set => SetProperty(ref heading, value);
+            LoadItemId("");
+            //this.course = new Course() {Name="",Id="" };
+            //this.itemId = "";
+            //Note = new Note() { Text = "This is a test text", Heading = "This is a heading test", Course = CourseList.ElementAt(1), Id = Guid.NewGuid().ToString() };
+            //CourseSelected = Note.Course;
         }
 
         private bool ValidateSave()
         {
-            return !String.IsNullOrWhiteSpace(Note.Heading)
-                && !String.IsNullOrWhiteSpace(Note.Text);
-        }
-
-        public int CourseIndex
-        {
-            get => courseindex;
-            set => SetProperty(ref courseindex, value);
+            return !String.IsNullOrWhiteSpace(this.Note.Heading)
+                && !String.IsNullOrWhiteSpace(this.Note.Text);
         }
 
         public string ItemId
@@ -111,10 +86,21 @@ namespace NoteKeeper.ViewModels
         {
             try
             {
-                var item = await DataStore.GetItemAsync(itemId);
-                Id = item.Id;
-                Text = item.Text;
-                Description = item.Description;
+                if (!String.IsNullOrWhiteSpace(itemId))
+                {
+
+                    var note = await ObjectNoteStore.GetObjectAsync(itemId);
+                    if(note != null)
+                        this.Note = new Note() { Id = note.Id, Text = note.Text, Heading = note.Heading, Course = note.Course };
+                    else
+                        this.Note = new Note() { Text = "", Heading = "", Course = new Course() { Name = "" }, Id = Guid.NewGuid().ToString() };
+                }
+                else
+                {
+                    this.Note = new Note() { Text = "", Heading = "", Course = new Course() { Name = ""}, Id = Guid.NewGuid().ToString() };
+                    
+                }
+                this.CourseSelected = this.Note.Course;
             }
             catch (Exception)
             {
@@ -128,14 +114,37 @@ namespace NoteKeeper.ViewModels
             await Shell.Current.GoToAsync($"//{nameof(ItemsPage)}");
         }
 
-        private async void UpdateItem()
+        private async void AddAndUpdateItem()
         {
             try
             {
-                var item = await DataStore.GetItemAsync(this.ItemId);
-                item.Text = text;
-                //item.Description = description;
-                await DataStore.UpdateItemAsync(item);
+                if (String.IsNullOrWhiteSpace(this.ItemId)) 
+                {
+                    var note = new Note()
+                    {
+                        Course = this.CourseSelected,
+                        Heading = this.Note.Heading,
+                        Text = this.Note.Text,
+                        Id = Guid.NewGuid().ToString()
+                    };
+
+                    var result = await ObjectNoteStore.AddObjectAsync(note);
+                    if (!result)
+                        throw new Exception("The item was not saved");
+                    this.ItemId = note.Id;
+                }
+                else
+                {
+                    var note = await ObjectNoteStore.GetObjectAsync(this.ItemId);
+                    note.Text = this.note.Text;
+                    note.Heading = this.note.Heading;
+                    note.Course = this.course;
+                    //item.Description = description;
+                    await ObjectNoteStore.UpdateObjectAsync(note);
+                }
+                //MessagingCenter.Send<Note>(this.Note, "SaveNote");
+
+                await Shell.Current.GoToAsync($"//{nameof(ItemsPage)}");
             }
             catch (Exception)
             {

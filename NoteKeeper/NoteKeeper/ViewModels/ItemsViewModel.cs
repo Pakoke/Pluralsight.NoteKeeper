@@ -10,35 +10,44 @@ namespace NoteKeeper.ViewModels
 {
     public class ItemsViewModel : BaseViewModel
     {
-        private Item _selectedItem;
+        private Note _selectedItem;
 
-        public ObservableCollection<Item> Items { get; }
-        public Command LoadItemsCommand { get; }
-        public Command AddItemCommand { get; }
-        public Command<Item> ItemTapped { get; }
+        public ObservableCollection<Note> Notes { get; }
+        public Command LoadNotesCommand { get; }
+        public Command AddNotesCommand { get; }
+        public Command<Note> NotesTapped { get; }
 
         public ItemsViewModel()
         {
             Title = "Browse";
-            Items = new ObservableCollection<Item>();
-            LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
+            Notes = new ObservableCollection<Note>();
+            LoadNotesCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
-            ItemTapped = new Command<Item>(OnItemSelected);
+            NotesTapped = new Command<Note>(OnItemSelected);
 
-            AddItemCommand = new Command(OnAddItem);
+            AddNotesCommand = new Command(OnAddItem);
+
+            //MessagingCenter.Subscribe<ItemDetailPage, Note>(this, "SaveNote",
+            //    async (sender, note) =>
+            //    {
+            //        Notes.Add(note);
+            //        await ObjectNoteStore.AddObjectAsync(note);
+
+            //    });
         }
 
         async Task ExecuteLoadItemsCommand()
         {
+
             IsBusy = true;
 
             try
             {
-                Items.Clear();
-                var items = await DataStore.GetItemsAsync(true);
-                foreach (var item in items)
+                Notes.Clear();
+                var notes = await ObjectNoteStore.GetObjectsAsync(true);
+                foreach (var note in notes)
                 {
-                    Items.Add(item);
+                    Notes.Add(note);
                 }
             }
             catch (Exception ex)
@@ -57,7 +66,7 @@ namespace NoteKeeper.ViewModels
             SelectedItem = null;
         }
 
-        public Item SelectedItem
+        public Note SelectedItem
         {
             get => _selectedItem;
             set
@@ -69,16 +78,16 @@ namespace NoteKeeper.ViewModels
 
         private async void OnAddItem(object obj)
         {
-            await Shell.Current.GoToAsync(nameof(ItemDetailPage));
+            await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?{nameof(ItemDetailViewModel.ItemId)}={""}");
         }
 
-        async void OnItemSelected(Item item)
+        async void OnItemSelected(Note note)
         {
-            if (item == null)
+            if (note == null)
                 return;
 
             // This will push the ItemDetailPage onto the navigation stack
-            await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?{nameof(ItemDetailViewModel.ItemId)}={item.Id}");
+            await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?{nameof(ItemDetailViewModel.ItemId)}={note.Id}");
         }
     }
 }
